@@ -42,16 +42,52 @@ void Mesh::Read_Obj(const char* file)
 // Check for an intersection against the ray.  See the base class for details.
 Hit Mesh::Intersection(const Ray& ray, int part) const
 {
-    TODO;
-    return {};
+
+//    TODO
+//    return {};
+	double min_t = std::numeric_limits<double>::max();
+	double dist = 0;
+    	Hit result;
+	result.object = NULL;
+
+   	if(part < 0) 
+	{
+		for(int i = 0; i < triangles.size(); i++) {
+            
+		if(dist < min_t) 
+		{
+                	if(Intersect_Triangle(ray, i, dist)) 
+			{
+                		result = {this, dist, i};
+				min_t = dist;
+                	}
+            	}
+        	}
+    	}
+    	else if(Intersect_Triangle(ray, part, dist))
+	{
+            result = {this, dist, part};
+    	}
+    return result;
+
 }
 
 // Compute the normal direction for the triangle with index part.
 vec3 Mesh::Normal(const vec3& point, int part) const
 {
-    assert(part>=0);
-    TODO;
-    return vec3();
+//    TODO;
+   	assert(part>=0);
+
+	ivec3 mytri = triangles[part];
+	vec3 a = vertices[mytri[0]];
+	vec3 b = vertices[mytri[1]];
+	vec3 c = vertices[mytri[2]];
+
+	vec3 ac = c - a;
+	vec3 ab = b - c;
+
+    return cross(ab,ac).normalized(); 
+
 }
 
 // This is a helper routine whose purpose is to simplify the implementation
@@ -68,8 +104,29 @@ vec3 Mesh::Normal(const vec3& point, int part) const
 // two triangles.
 bool Mesh::Intersect_Triangle(const Ray& ray, int tri, double& dist) const
 {
-    TODO;
-    return false;
+//    TODO;
+	vec3 x, y, z, direct;
+	ivec3 point;
+	double a, b, g;
+	
+	point = triangles[tri];
+	x = vertices[point[1]] - vertices[point[0]];
+	y = vertices[point[2]] - vertices[point[0]];
+	z = ray.endpoint - vertices[triangles[tri][0]];
+	direct = ray.direction;
+
+	if(dot(direct,this->Normal(direct,tri)) == 0){
+		return false;
+	}
+
+	b = dot(cross(direct,y), z) / dot(cross(direct,y), x);
+	g = dot(cross(direct,x), z) / dot(cross(direct,x), y);
+	a = 1 - b - g;
+
+	dist = -dot(cross(x,y), z) / dot(cross(x,y), direct);
+	
+	 return !((a < -weight_tol || b < -weight_tol || g < -weight_tol) || dist < small_t);
+	 
 }
 
 // Compute the bounding box.  Return the bounding box of only the triangle whose

@@ -24,18 +24,21 @@ Hit Render_World::Closest_Intersection(const Ray& ray)
 {
     //TODO;
 
-    Hit closest = {0,0,0};
-    //Hit closest.object = NULL;
-    double min_t = std::numeric_limits<double>::max();   
+	Hit closest = {NULL,0,0};
+	double min_t = std::numeric_limits<double>::max();   
 
-    for(unsigned int i = 0; i < objects.size(); i++){
-    	Hit test = objects[i]->Intersection(ray, (int) small_t);
-	if((test.dist > small_t) && (test.dist < min_t)){
-	    closest = test;
-	}
-    }
+	for(unsigned int i = 0; i < objects.size(); i++){
+	
+  		Hit test = objects[i]->Intersection(ray, (int) small_t);
 
-    return closest;
+		if(((test.dist && test.object) >= small_t) && (test.dist < min_t))
+		{
+			closest = test;
+	    		min_t = test.dist;
+		}
+    	}
+
+   	return closest;
 }
 
 // set up the initial view ray and call
@@ -43,14 +46,15 @@ void Render_World::Render_Pixel(const ivec2& pixel_index)
 {
     //TODO;  set up the initial view ray here
 
-    Ray ray;
-    //vec3 direct = camera.World_Position(pixel_index) - camera.position;
-    //ray.direction = direct.normalized();
-    ray.direction = ((camera.World_Position(pixel_index)-camera.position).normalized());
-    ray.endpoint = camera.position;
+    	Ray ray;
+    	
+	//vec3 direct = camera.World_Position(pixel_index) - camera.position;
+    	ray.direction = ((camera.World_Position(pixel_index)-camera.position).normalized());
+    	ray.endpoint = camera.position;
 
-    vec3 color=Cast_Ray(ray,1);
-    camera.Set_Pixel(pixel_index,Pixel_Color(color));
+    	vec3 color=Cast_Ray(ray,1);
+
+    	camera.Set_Pixel(pixel_index,Pixel_Color(color));
 }
 
 void Render_World::Render()
@@ -67,21 +71,24 @@ void Render_World::Render()
 // or the background color if there is no object intersection
 vec3 Render_World::Cast_Ray(const Ray& ray,int recursion_depth)
 {
-    vec3 color;
+	vec3 color;
     
-    Hit colorneed = Closest_Intersection(ray);
+	Hit colorneed = Closest_Intersection(ray);
     
-    if(colorneed.object == NULL){
-       color = background_shader->Shade_Surface(ray, vec3(0,0,0), vec3(0,0,0), recursion_depth);
-    }
-    else{
-       vec3 colorneed_point = ray.Point(colorneed.dist);
-       vec3 norm = colorneed.object->Normal(colorneed_point, colorneed.part);
-       color = colorneed.object->material_shader->Shade_Surface(ray,colorneed_point, norm , recursion_depth);
-    }
+	if(colorneed.object == NULL)
+	{
+       		color = background_shader->Shade_Surface(ray, vec3(0,0,0), vec3(0,0,0), recursion_depth);
+    	}
+    	else	
+	{
+       		vec3 colorneed_point = ray.Point(colorneed.dist);
+       		vec3 norm = colorneed.object->Normal(colorneed_point, colorneed.part);
+       		color = colorneed.object->material_shader->Shade_Surface(ray,colorneed_point, norm , recursion_depth);
+    	}
 
-    //TODO;  determine the color here
-    return color;
+ //TODO;  determine the color here
+ 	return color;
+
 }
 
 void Render_World::Initialize_Hierarchy()

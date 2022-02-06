@@ -5,32 +5,34 @@
 Hit Sphere::Intersection(const Ray& ray, int part) const
 {
     //TODO;
-    vec3 x = (ray.endpoint - center);
-    Hit intersect = {0,0,0};
-    double a = (dot(x,x) - (radius*radius));
-    double b = dot((ray.direction + ray.direction), x);
-    double discriminant = ((b*b) - (4*a));
+	vec3 x = (ray.endpoint - center);
+	Hit intersect = {0,0,0};
+	double a = (dot(x,x) - (radius*radius));
+	double b = dot((ray.direction + ray.direction), x);
+	double discriminant = ((b*b) - (4*a));
 
-    if(discriminant > 0){
+	if(discriminant > 0)
+	{
+   
+   	 	double root_pos = ((-b + sqrt(discriminant)) / 2);
+   		double root_neg = ((-b - sqrt(discriminant)) / 2);
     
-    double root_pos = ((-b + sqrt(discriminant)) / 2);
-    double root_neg = ((-b - sqrt(discriminant)) / 2);
+    		if((root_pos > 0)&& (root_neg > 0))
+		{
+           		intersect.object = this;
+           		intersect.dist = root_neg;
+           		intersect.part = part;
+       		}
+    	}	
     
-    if((root_pos > 0)&& (root_neg > 0)){
-           intersect.object = this;
-           intersect.dist = root_neg;
-           intersect.part = part;
-       }
-    }
-    
-    return intersect;
+    	return intersect;
 }
 
 vec3 Sphere::Normal(const vec3& point, int part) const
 {
-    vec3 normal;
-    normal = (point - center).normalized();
-    return normal;
+    	vec3 normal;
+    	normal = (point - center).normalized();
+    	return normal;
 }
 
 Box Sphere::Bounding_Box(int part) const

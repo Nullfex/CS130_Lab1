@@ -8,23 +8,24 @@
 // to record a hit with t=0 as the first entry in hits.
 Hit Plane::Intersection(const Ray& ray, int part) const
 {
-   
-    Hit result = {0 ,0, 0};
-    double denominator = dot(ray.direction, normal);
-    
-    if(denominator != 0) {     //tests for divide by zero
-    
-    double t = (dot((x1 - ray.endpoint), normal)/ denominator);
-    
-	if(t > small_t){
 
-           result.object = this;
-           result.dist = t;
-           result.part = part;
-        }
+	Hit result = {0 ,0, 0};
+	double denominator = dot(ray.direction, normal);
     
-    }
-    return result;
+	if(denominator != 0) 
+	{     //tests for divide by zero
+    
+		double t = (dot((x1 - ray.endpoint), normal)/ denominator);
+    		if(t > small_t)
+		{
+			result.object = this;
+        	result.dist = t;
+        	result.part = part;
+   		}
+    
+   	}
+   return result;
+
 }
 
 vec3 Plane::Normal(const vec3& point, int part) const
